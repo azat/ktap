@@ -33,78 +33,70 @@
 #include <libelf.h>
 
 /**
- * TODO: split into small helpers
+ * TODO: split into small helpers`
  */
 vaddr_t find_symbol(const char *exec, const char *symbol)
 {
-    GElf_Ehdr *elf_header = NULL;
-    Elf *elf = NULL;
-    Elf_Scn *scn = NULL;
-    Elf_Data *elf_data = NULL;
-    GElf_Sym sym;
-    GElf_Shdr shdr;
+	GElf_Ehdr *elf_header = NULL;
+	Elf *elf = NULL;
+	Elf_Scn *scn = NULL;
+	Elf_Data *elf_data = NULL;
+	GElf_Sym sym;
+	GElf_Shdr shdr;
 
-    int fd;
-    struct stat stat;
-    char *buffer;
-    vaddr_t vaddr = 0;
+	int fd;
+	struct stat stat;
+	char *buffer;
+	vaddr_t vaddr = 0;
 
-    if ((fd = open(exec, O_RDONLY)) == -1) {
-        goto err;
-    }
-    if ((fstat(fd, &stat))) {
-        goto err_close;
-    }
-    if (!(buffer = (char *)malloc(stat.st_size))) {
-        goto err_close;
-    }
-    if ((read(fd, buffer, stat.st_size)) < stat.st_size) {
-        goto err_free;
-    }
+	if ((fd = open(exec, O_RDONLY)) == -1)
+		goto err;
+	if ((fstat(fd, &stat)))
+		goto err_close;
+	if (!(buffer = (char *)malloc(stat.st_size)))
+		goto err_close;
+	if ((read(fd, buffer, stat.st_size)) < stat.st_size)
+		goto err_free;
 
-    if (elf_version(EV_CURRENT) == EV_NONE) {
-        goto err_free;
-    }
-    elf_header = (GElf_Ehdr *)buffer;
-    elf = elf_begin(fd, ELF_C_READ, NULL);
+	if (elf_version(EV_CURRENT) == EV_NONE)
+		goto err_free;
+	elf_header = (GElf_Ehdr *)buffer;
+	elf = elf_begin(fd, ELF_C_READ, NULL);
 
-    while ((scn = elf_nextscn(elf, scn))) {
-        int i;
-        int symbols;
-        char *current_symbol;
+	while ((scn = elf_nextscn(elf, scn))) {
+		int i;
+		int symbols;
+		char *current_symbol;
 
-        gelf_getshdr(scn, &shdr);
+		gelf_getshdr(scn, &shdr);
 
-        if (shdr.sh_type != SHT_SYMTAB) {
-            continue;
-        }
+		if (shdr.sh_type != SHT_SYMTAB)
+			continue;
 
-        elf_data = elf_getdata(scn, elf_data);
-        symbols = shdr.sh_size / shdr.sh_entsize;
+		elf_data = elf_getdata(scn, elf_data);
+		symbols = shdr.sh_size / shdr.sh_entsize;
 
-        for (i = 0; i < symbols; i++) {
-            gelf_getsym(elf_data, i, &sym);
+		for (i = 0; i < symbols; i++) {
+			gelf_getsym(elf_data, i, &sym);
 
-            if (GELF_ST_TYPE(sym.st_info) != STT_FUNC) {
-                continue;
-            }
+			if (GELF_ST_TYPE(sym.st_info) != STT_FUNC)
+				continue;
 
-            current_symbol = elf_strptr(elf, shdr.sh_link, sym.st_name);
-            if (!strcmp(current_symbol, symbol)) {
-                vaddr = sym.st_value;
-                goto success;
-            }
-        }
-    }
+			current_symbol = elf_strptr(elf, shdr.sh_link, sym.st_name);
+			if (!strcmp(current_symbol, symbol)) {
+				vaddr = sym.st_value;
+				goto success;
+			}
+		}
+	}
 
 success:
 err_free:
-    if (elf) {
-        elf_end(elf);
-    }
-    free(buffer);
+	if (elf)
+		elf_end(elf);
+	free(buffer);
 err_close:
-    close(fd);
+	close(fd);
 err:
-    return vaddr;
+	return vaddr;
 }
