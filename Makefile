@@ -59,6 +59,8 @@ $(UDIR)/tstring.o: $(INTP)/tstring.c $(INC)/*
 	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
 $(UDIR)/object.o: $(INTP)/object.c $(INC)/*
 	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
+$(UDIR)/symbol.o: $(UDIR)/symbol.c $(INC)/*
+	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
 
 KTAPOBJS =
 KTAPOBJS += $(UDIR)/lex.o
@@ -73,9 +75,10 @@ KTAPOBJS += $(UDIR)/opcode.o
 KTAPOBJS += $(UDIR)/table.o
 KTAPOBJS += $(UDIR)/tstring.o
 KTAPOBJS += $(UDIR)/object.o
+KTAPOBJS += $(UDIR)/symbol.o
 
 ktap: $(KTAPOBJS)
-	$(QUIET_LINK)$(CC) $(KTAPC_CFLAGS) -o $@ $(KTAPOBJS) -lpthread
+	$(QUIET_LINK)$(CC) $(KTAPC_CFLAGS) -o $@ $(KTAPOBJS) -lpthread -lelf
 
 KMISC := /lib/modules/$(KVERSION)/ktapvm/
 
