@@ -32,6 +32,29 @@
 
 #include <libelf.h>
 
+
+/**
+ * @return v_addr of "LOAD" program header, that have zero offset.
+ */
+static vaddr_t find_load_address(Elf *elf)
+{
+	GElf_Phdr header;
+	size_t headers;
+	vaddr_t address = 0;
+
+	elf_getphdrnum(elf, &headers);
+	while (headers-- > 0) {
+		gelf_getphdr(elf, headers, &header);
+		if (header.p_type != PT_LOAD || header.p_offset != 0)
+			continue;
+
+		address = header.p_vaddr;
+		break;
+	}
+
+	return address;
+}
+
 /**
  * TODO: split into small helpers`
  */
@@ -43,14 +66,12 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 	Elf_Data *elf_data = NULL;
 	GElf_Sym sym;
 	GElf_Shdr shdr;
-	GElf_Phdr phdr;
-	size_t phdrs;
 
 	int fd;
 	struct stat stat;
 	char *buffer;
 	vaddr_t vaddr = 0;
-	vaddr_t load_address = 0;
+	vaddr_t load_address;
 
 	if ((fd = open(exec, O_RDONLY)) == -1)
 		goto err;
@@ -67,18 +88,9 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 
 	elf = elf_begin(fd, ELF_C_READ, NULL);
 
-	elf_getphdrnum(elf, &phdrs);
-	while (phdrs-- > 0) {
-		gelf_getphdr(elf, phdrs, &phdr);
-		if (phdr.p_type != PT_LOAD || phdr.p_offset != 0)
-			continue;
-
-		load_address = phdr.p_vaddr;
-		break;
-	}
-	if (!load_address) {
+	load_address = find_load_address(elf);
+	if (!load_address)
 		goto err_free;
-	}
 
 	while ((scn = elf_nextscn(elf, scn))) {
 		int i;
