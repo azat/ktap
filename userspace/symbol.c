@@ -55,46 +55,20 @@ static vaddr_t find_load_address(Elf *elf)
 	return address;
 }
 
-/**
- * TODO: split into small helpers`
- */
-vaddr_t find_symbol(const char *exec, const char *symbol)
+static vaddr_t search_symbol(Elf *elf, const char *symbol)
 {
-	GElf_Ehdr *elf_header = NULL;
-	Elf *elf = NULL;
-	Elf_Scn *scn = NULL;
 	Elf_Data *elf_data = NULL;
+	Elf_Scn *scn = NULL;
 	GElf_Sym sym;
 	GElf_Shdr shdr;
 
-	int fd;
-	struct stat stat;
-	char *buffer;
-	vaddr_t vaddr = 0;
-	vaddr_t load_address;
+	vaddr_t load_address = find_load_address(elf);
 
-	if ((fd = open(exec, O_RDONLY)) == -1)
-		goto err;
-	if ((fstat(fd, &stat)))
-		goto err_close;
-	if (!(buffer = (char *)malloc(stat.st_size)))
-		goto err_close;
-	if ((read(fd, buffer, stat.st_size)) < stat.st_size)
-		goto err_free;
-
-	if (elf_version(EV_CURRENT) == EV_NONE)
-		goto err_free;
-	elf_header = (GElf_Ehdr *)buffer;
-
-	elf = elf_begin(fd, ELF_C_READ, NULL);
-
-	load_address = find_load_address(elf);
 	if (!load_address)
-		goto err_free;
+		return 0;
 
 	while ((scn = elf_nextscn(elf, scn))) {
-		int i;
-		int symbols;
+		int i, symbols;
 		char *current_symbol;
 
 		gelf_getshdr(scn, &shdr);
@@ -113,13 +87,41 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 
 			current_symbol = elf_strptr(elf, shdr.sh_link, sym.st_name);
 			if (!strcmp(current_symbol, symbol)) {
-				vaddr = sym.st_value - load_address;
-				goto success;
+				return (sym.st_value - load_address);
 			}
 		}
 	}
 
-success:
+	return 0;
+}
+
+vaddr_t find_symbol(const char *exec, const char *symbol)
+{
+	GElf_Ehdr *elf_header = NULL;
+	Elf *elf = NULL;
+
+	int fd;
+	struct stat stat;
+	char *buffer;
+	vaddr_t vaddr = 0;
+
+	if ((fd = open(exec, O_RDONLY)) == -1)
+		goto err;
+	if ((fstat(fd, &stat)))
+		goto err_close;
+	if (!(buffer = (char *)malloc(stat.st_size)))
+		goto err_close;
+	if ((read(fd, buffer, stat.st_size)) < stat.st_size)
+		goto err_free;
+
+	if (elf_version(EV_CURRENT) == EV_NONE)
+		goto err_free;
+	elf_header = (GElf_Ehdr *)buffer;
+
+	elf = elf_begin(fd, ELF_C_READ, NULL);
+
+	vaddr = search_symbol(elf, symbol);
+
 err_free:
 	if (elf)
 		elf_end(elf);
