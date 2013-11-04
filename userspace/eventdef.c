@@ -29,6 +29,7 @@
 #include "../include/ktap_types.h"
 #include "../include/ktap_opcodes.h"
 #include "ktapc.h"
+#include "symbol.h"
 
 static char tracing_events_path[] = "/sys/kernel/debug/tracing/events";
 
@@ -305,6 +306,35 @@ static int parse_events_add_kprobe(char *old_event)
 
 #define UPROBE_EVENTS_PATH "/sys/kernel/debug/tracing/uprobe_events"
 
+static char* parse_events_resolve_symbol(char *event, char *r)
+{
+	char *colon;
+	colon = strchr(event, ':');
+
+	char *binary = strndup(event, colon - event);
+	char *symbol = strndup(colon + 1 /* skip ":" */,
+		r ? (r - 1 /* skip "%" */ - colon) : strlen((const char *)colon));
+
+	/**
+	 * Test whethere we have symbol address, or symbol name.
+	 * If second, than we need to scan dso to resolve it.
+	 */
+	vaddr_t symbol_address;
+	if ((sscanf(symbol, "%lx", &symbol_address) != 1) &&
+	    (symbol_address = find_symbol(binary, symbol))) {
+		verbose_printf("symbol %s resolved to 0x%lx\n",
+			event, symbol_address);
+
+		event = realloc(event, strlen(event) + (strlen(STRINGIFY(ULONG_MAX))));
+		sprintf(event, "%s:0x%lx", binary, symbol_address);
+	}
+
+	free(binary);
+	free(symbol);
+
+	return event;
+}
+
 static int parse_events_add_uprobe(char *old_event)
 {
 	static int event_seq = 0;
@@ -326,6 +356,10 @@ static int parse_events_add_uprobe(char *old_event)
 	r = strstr(event, "%return");
 	if (r) {
 		memset(r, ' ', 7);
+	}
+	event = parse_events_resolve_symbol(event, r);
+
+	if (r) {
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
 				event_seq, event);
 	} else
