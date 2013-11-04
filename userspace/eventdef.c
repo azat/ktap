@@ -331,7 +331,7 @@ static int parse_events_add_uprobe(char *old_event)
 
 		char *binary = strndup(event, colon - event);
 		char *symbol = strndup(colon + 1 /* skip ":" */,
-			r ? (r - colon) : strlen((const char *)colon));
+			r ? (r - 1 /* skip "%" */ - colon) : strlen((const char *)colon));
 
 		/**
 		 * Test whethere we have symbol address, or symbol name.
