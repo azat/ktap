@@ -325,6 +325,10 @@ static int parse_events_add_uprobe(char *old_event)
 
 	event = strdup(old_event);
 	r = strstr(event, "%return");
+	if (r) {
+		memset(r, ' ', 7);
+	}
+
 	{
 		char *colon;
 		colon = strchr(event, ':');
@@ -353,7 +357,6 @@ static int parse_events_add_uprobe(char *old_event)
 		free(symbol);
 	}
 	if (r) {
-		memset(r, ' ', 7);
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
 				event_seq, event);
 	} else
