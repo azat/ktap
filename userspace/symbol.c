@@ -43,11 +43,14 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 	Elf_Data *elf_data = NULL;
 	GElf_Sym sym;
 	GElf_Shdr shdr;
+	GElf_Phdr phdr;
+	size_t phdrs;
 
 	int fd;
 	struct stat stat;
 	char *buffer;
 	vaddr_t vaddr = 0;
+	vaddr_t load_address = 0;
 
 	if ((fd = open(exec, O_RDONLY)) == -1)
 		goto err;
@@ -61,7 +64,21 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 	if (elf_version(EV_CURRENT) == EV_NONE)
 		goto err_free;
 	elf_header = (GElf_Ehdr *)buffer;
+
 	elf = elf_begin(fd, ELF_C_READ, NULL);
+
+	elf_getphdrnum(elf, &phdrs);
+	while (phdrs-- > 0) {
+		gelf_getphdr(elf, phdrs, &phdr);
+		if (phdr.p_type != PT_LOAD || phdr.p_offset != 0)
+			continue;
+
+		load_address = phdr.p_vaddr;
+		break;
+	}
+	if (!load_address) {
+		goto err_free;
+	}
 
 	while ((scn = elf_nextscn(elf, scn))) {
 		int i;
@@ -84,7 +101,7 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 
 			current_symbol = elf_strptr(elf, shdr.sh_link, sym.st_name);
 			if (!strcmp(current_symbol, symbol)) {
-				vaddr = sym.st_value;
+				vaddr = sym.st_value - load_address;
 				goto success;
 			}
 		}
