@@ -49,7 +49,7 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
     char *buffer;
     vaddr_t vaddr = 0;
 
-    if ((fd = open(exec, O_RDWR)) == -1) {
+    if ((fd = open(exec, O_RDONLY)) == -1) {
         goto err;
     }
     if ((fstat(fd, &stat))) {
