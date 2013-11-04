@@ -29,6 +29,7 @@
 #include "../include/ktap_types.h"
 #include "../include/ktap_opcodes.h"
 #include "ktapc.h"
+#include "symbol.h"
 
 static char tracing_events_path[] = "/sys/kernel/debug/tracing/events";
 
@@ -323,6 +324,32 @@ static int parse_events_add_uprobe(char *old_event)
 	}
 
 	event = strdup(old_event);
+	{
+		char *separator;
+		separator = strchr(event, ':');
+
+		char *binary = strndup(event, separator - event);
+		char *symbol = strdup((const char *)(separator + 1) /* skip ":" */);
+
+		/**
+		 * Test whethere we have symbol address, or symbol name.
+		 * If second, than we need to scan dso to resolve it.
+		 */
+		vaddr_t symbol_address;
+		if ((sscanf(symbol, "%lx", &symbol_address) != 1) &&
+		    (symbol_address = find_symbol(binary, symbol))) {
+
+			free(event);
+			/* TODO: don't use asprintf() */
+			asprintf(&event, "%s:0x%lx", binary, symbol_address);
+
+			verbose_printf("symbol %s:%s resolved to 0x%lx\n",
+				binary, symbol, symbol_address);
+		}
+
+		free(binary);
+		free(symbol);
+	}
 	r = strstr(event, "%return");
 	if (r) {
 		memset(r, ' ', 7);
@@ -541,7 +568,7 @@ ktap_string *ktapc_parse_eventdef(ktap_string *eventdef)
 		goto parse_next_eventdef;
 
 	ts = ktapc_ts_new(g_idstr);
-	free(g_idstr);	
+	free(g_idstr);
 
 	return ts;
  error:
