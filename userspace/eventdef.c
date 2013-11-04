@@ -324,12 +324,14 @@ static int parse_events_add_uprobe(char *old_event)
 	}
 
 	event = strdup(old_event);
+	r = strstr(event, "%return");
 	{
-		char *separator;
-		separator = strchr(event, ':');
+		char *colon;
+		colon = strchr(event, ':');
 
-		char *binary = strndup(event, separator - event);
-		char *symbol = strdup((const char *)(separator + 1) /* skip ":" */);
+		char *binary = strndup(event, colon - event);
+		char *symbol = strndup(colon + 1 /* skip ":" */,
+			r ? (r - colon) : strlen((const char *)colon));
 
 		/**
 		 * Test whethere we have symbol address, or symbol name.
@@ -350,7 +352,6 @@ static int parse_events_add_uprobe(char *old_event)
 		free(binary);
 		free(symbol);
 	}
-	r = strstr(event, "%return");
 	if (r) {
 		memset(r, ' ', 7);
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
