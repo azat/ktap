@@ -62,6 +62,9 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
         goto err_free;
     }
 
+    if (elf_version(EV_CURRENT) == EV_NONE) {
+        goto err_free;
+    }
     elf_header = (GElf_Ehdr *)buffer;
     elf = elf_begin(fd, ELF_C_READ, NULL);
 
