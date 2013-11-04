@@ -97,37 +97,18 @@ static vaddr_t search_symbol(Elf *elf, const char *symbol)
 
 vaddr_t find_symbol(const char *exec, const char *symbol)
 {
-	GElf_Ehdr *elf_header = NULL;
 	Elf *elf = NULL;
-
-	int fd;
-	struct stat stat;
-	char *buffer;
+	int fd = 0;
 	vaddr_t vaddr = 0;
 
-	if ((fd = open(exec, O_RDONLY)) == -1)
-		goto err;
-	if ((fstat(fd, &stat)))
-		goto err_close;
-	if (!(buffer = (char *)malloc(stat.st_size)))
-		goto err_close;
-	if ((read(fd, buffer, stat.st_size)) < stat.st_size)
-		goto err_free;
+	if (((fd = open(exec, O_RDONLY)) != -1) &&
+	    (elf_version(EV_CURRENT) != EV_NONE) &&
+	    (elf = elf_begin(fd, ELF_C_READ, NULL)))
+			vaddr = search_symbol(elf, symbol);
 
-	if (elf_version(EV_CURRENT) == EV_NONE)
-		goto err_free;
-	elf_header = (GElf_Ehdr *)buffer;
-
-	elf = elf_begin(fd, ELF_C_READ, NULL);
-
-	vaddr = search_symbol(elf, symbol);
-
-err_free:
 	if (elf)
 		elf_end(elf);
-	free(buffer);
-err_close:
-	close(fd);
-err:
+	if (fd)
+		close(fd);
 	return vaddr;
 }
