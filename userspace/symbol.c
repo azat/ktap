@@ -30,7 +30,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include <elf.h>
+#include <libelf.h>
 
 /**
  * TODO: split into small helpers
