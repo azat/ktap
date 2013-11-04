@@ -38,7 +38,7 @@
 vaddr_t find_symbol(const char *exec, const char *symbol)
 {
     GElf_Ehdr *elf_header = NULL;
-    Elf *elf;
+    Elf *elf = NULL;
     Elf_Scn *scn = NULL;
     Elf_Data *elf_data = NULL;
     GElf_Sym sym;
@@ -99,6 +99,9 @@ vaddr_t find_symbol(const char *exec, const char *symbol)
 
 success:
 err_free:
+    if (elf) {
+        elf_end(elf);
+    }
     free(buffer);
 err_close:
     close(fd);
