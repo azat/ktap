@@ -345,8 +345,8 @@ static int parse_events_add_uprobe(char *old_event)
 			/* TODO: don't use asprintf() */
 			asprintf(&event, "%s:0x%lx", binary, symbol_address);
 
-			verbose_printf("symbol %s:%s resolved to 0x%lx\n",
-				binary, symbol, symbol_address);
+			verbose_printf("symbol %s resolved to 0x%lx\n",
+				old_event, symbol_address);
 		}
 
 		free(binary);
