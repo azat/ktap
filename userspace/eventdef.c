@@ -312,7 +312,7 @@ static char* parse_events_resolve_symbol(char *event)
 	char *colon = strchr(event, ':');
 	vaddr_t symbol_address = strtol(colon + 1 /* skip ":" */, NULL, 0);
 
-	char *end, *binary, *symbol;
+	char *end, *tail, *binary, *symbol;
 
 	/**
 	 * We already have address, no need in resolving.
@@ -324,18 +324,20 @@ static char* parse_events_resolve_symbol(char *event)
 	binary = strndup(event, colon - event);
 
 	end = strpbrk(event, "% ");
-	if (end)
-		end--;
-	else
-		end = colon + strlen(colon);
-	symbol = strndup(colon + 1 /* skip ":" */, end - colon);
+	if (end) {
+		tail = strdup(end);
+		symbol = strndup(colon + 1 /* skip ":" */, end - 1 - colon);
+	} else {
+		tail = NULL;
+		symbol = strdup(colon + 1 /* skip ":" */);
+	}
 
 	if ((symbol_address = find_symbol(binary, symbol))) {
 		verbose_printf("symbol %s resolved to 0x%lx\n",
 			event, symbol_address);
 
 		event = realloc(event, strlen(event) + (strlen(STRINGIFY(ULONG_MAX))));
-		sprintf(event, "%s:0x%lx", binary, symbol_address);
+		sprintf(event, "%s:0x%lx%s", binary, symbol_address, tail ?: "");
 	}
 
 	free(binary);
@@ -363,13 +365,13 @@ static int parse_events_add_uprobe(char *old_event)
 	}
 
 	event = strdup(old_event);
+#ifndef NO_LIBELF
+	event = parse_events_resolve_symbol(event);
+#endif
 	r = strstr(event, "%return");
 	if (r) {
 		memset(r, ' ', 7);
 	}
-#ifndef NO_LIBELF
-	event = parse_events_resolve_symbol(event);
-#endif
 
 	if (r) {
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
