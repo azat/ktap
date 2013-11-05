@@ -306,20 +306,25 @@ static int parse_events_add_kprobe(char *old_event)
 
 #define UPROBE_EVENTS_PATH "/sys/kernel/debug/tracing/uprobe_events"
 
-static char* parse_events_resolve_symbol(char *event, char *r)
+static char* parse_events_resolve_symbol(char *event)
 {
 	char *colon = strchr(event, ':');
-	char *binary = strndup(event, colon - event);
-	char *symbol = strndup(colon + 1 /* skip ":" */,
-		r ? (r - 1 /* skip "%" */ - colon) : strlen((const char *)colon));
+	char *symbol_address_end;
+	vaddr_t symbol_address = strtol(colon + 1 /* skip ":" */,
+		&symbol_address_end, 0);
 
 	/**
-	 * Test whethere we have symbol address, or symbol name.
-	 * If second, than we need to scan dso to resolve it.
+	 * We already have address, no need in resolving.
 	 */
-	vaddr_t symbol_address;
-	if ((sscanf(symbol, "%lx", &symbol_address) != 1) &&
-	    (symbol_address = find_symbol(binary, symbol))) {
+	if (symbol_address) {
+		return event;
+	}
+
+	char *binary = strndup(event, colon - event);
+	char *symbol = strndup(colon + 1, /* skip ":" */
+		symbol_address_end - 1 /* skip last symbol */ - colon);
+
+	if ((symbol_address = find_symbol(binary, symbol))) {
 		verbose_printf("symbol %s resolved to 0x%lx\n",
 			event, symbol_address);
 
@@ -355,7 +360,7 @@ static int parse_events_add_uprobe(char *old_event)
 	if (r) {
 		memset(r, ' ', 7);
 	}
-	event = parse_events_resolve_symbol(event, r);
+	event = parse_events_resolve_symbol(event);
 
 	if (r) {
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
