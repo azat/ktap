@@ -67,8 +67,8 @@ $(UDIR)/tstring.o: $(INTP)/tstring.c $(INC)/*
 $(UDIR)/object.o: $(INTP)/object.c $(INC)/*
 	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
 ifndef NO_LIBELF
-	$(UDIR)/symbol.o: $(UDIR)/symbol.c $(INC)/*
-		$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
+$(UDIR)/symbol.o: $(UDIR)/symbol.c $(INC)/*
+	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
 endif
 
 KTAPOBJS =
