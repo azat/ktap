@@ -306,12 +306,12 @@ static int parse_events_add_kprobe(char *old_event)
 
 #define UPROBE_EVENTS_PATH "/sys/kernel/debug/tracing/uprobe_events"
 
-static char* parse_events_resolve_symbol(char *event, char *r)
+static char* parse_events_resolve_symbol(char *event)
 {
 	char *colon = strchr(event, ':');
 	vaddr_t symbol_address = strtol(colon + 1 /* skip ":" */, NULL, 0);
 
-	char *binary, *symbol;
+	char *end, *binary, *symbol;
 
 	/**
 	 * We already have address, no need in resolving.
@@ -321,12 +321,13 @@ static char* parse_events_resolve_symbol(char *event, char *r)
 	}
 
 	binary = strndup(event, colon - event);
-	if (r) {
-		symbol = strndup(colon + 1 /* skip ":" */,
-			r - 1 /* skip "%" */ - colon);
-	} else {
-		symbol = strdup(colon + 1);
-	}
+
+	end = strpbrk(event, "% ");
+	if (end)
+		end--;
+	else
+		end = colon + strlen(colon);
+	symbol = strndup(colon + 1 /* skip ":" */, end - colon);
 
 	if ((symbol_address = find_symbol(binary, symbol))) {
 		verbose_printf("symbol %s resolved to 0x%lx\n",
@@ -364,7 +365,7 @@ static int parse_events_add_uprobe(char *old_event)
 	if (r) {
 		memset(r, ' ', 7);
 	}
-	event = parse_events_resolve_symbol(event, r);
+	event = parse_events_resolve_symbol(event);
 
 	if (r) {
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",
