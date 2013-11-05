@@ -306,6 +306,7 @@ static int parse_events_add_kprobe(char *old_event)
 
 #define UPROBE_EVENTS_PATH "/sys/kernel/debug/tracing/uprobe_events"
 
+#ifndef NO_LIBELF
 static char* parse_events_resolve_symbol(char *event)
 {
 	char *colon = strchr(event, ':');
@@ -342,6 +343,7 @@ static char* parse_events_resolve_symbol(char *event)
 
 	return event;
 }
+#endif
 
 static int parse_events_add_uprobe(char *old_event)
 {
@@ -365,7 +367,9 @@ static int parse_events_add_uprobe(char *old_event)
 	if (r) {
 		memset(r, ' ', 7);
 	}
+#ifndef NO_LIBELF
 	event = parse_events_resolve_symbol(event);
+#endif
 
 	if (r) {
 		snprintf(probe_event, 128, "r:uprobes/kp%d %s",

@@ -1,4 +1,8 @@
 
+#
+# Define NO_LIBELF if you do not want libelf dependency (e.g. cross-builds)
+#
+
 # Do not instrument the tracer itself:
 ifdef CONFIG_FUNCTION_TRACER
 ORIG_CFLAGS := $(KBUILD_CFLAGS)
@@ -32,6 +36,9 @@ modules_install:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install
 
 KTAPC_CFLAGS = -Wall -O2
+ifdef NO_LIBELF
+	KTAPC_CFLAGS += -DNO_LIBELF
+endif
 
 UDIR = userspace
 
@@ -59,8 +66,10 @@ $(UDIR)/tstring.o: $(INTP)/tstring.c $(INC)/*
 	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
 $(UDIR)/object.o: $(INTP)/object.c $(INC)/*
 	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
-$(UDIR)/symbol.o: $(UDIR)/symbol.c $(INC)/*
-	$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
+ifndef NO_LIBELF
+	$(UDIR)/symbol.o: $(UDIR)/symbol.c $(INC)/*
+		$(QUIET_CC)$(CC) $(DEBUGINFO_FLAG) $(KTAPC_CFLAGS) -o $@ -c $<
+endif
 
 KTAPOBJS =
 KTAPOBJS += $(UDIR)/lex.o
@@ -75,7 +84,9 @@ KTAPOBJS += $(UDIR)/opcode.o
 KTAPOBJS += $(UDIR)/table.o
 KTAPOBJS += $(UDIR)/tstring.o
 KTAPOBJS += $(UDIR)/object.o
-KTAPOBJS += $(UDIR)/symbol.o
+ifndef NO_LIBELF
+	KTAPOBJS += $(UDIR)/symbol.o
+endif
 
 ktap: $(KTAPOBJS)
 	$(QUIET_LINK)$(CC) $(KTAPC_CFLAGS) -o $@ $(KTAPOBJS) -lpthread -lelf
