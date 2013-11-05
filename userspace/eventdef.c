@@ -308,9 +308,7 @@ static int parse_events_add_kprobe(char *old_event)
 
 static char* parse_events_resolve_symbol(char *event, char *r)
 {
-	char *colon;
-	colon = strchr(event, ':');
-
+	char *colon = strchr(event, ':');
 	char *binary = strndup(event, colon - event);
 	char *symbol = strndup(colon + 1 /* skip ":" */,
 		r ? (r - 1 /* skip "%" */ - colon) : strlen((const char *)colon));
