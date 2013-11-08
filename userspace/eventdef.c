@@ -336,7 +336,7 @@ static char *parse_events_resolve_symbol(char *event)
 		symbol = strdup(colon + 1 /* skip ":" */);
 	}
 
-	symbol_address = find_symbol(binary, symbol);
+	symbol_address = find_symbol(binary, symbol, FIND_SYMBOL);
 	if (symbol_address) {
 		verbose_printf("symbol %s resolved to 0x%lx\n",
 			event, symbol_address);

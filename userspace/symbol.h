@@ -19,7 +19,19 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * TODO: add instead listing functions
+ * TODO: error messages
+ */
+
 #include <gelf.h>
+
+#define SDT_NOTE_TYPE 3
+#define SDT_NOTE_SCN ".note.stapsdt"
+#define SDT_NOTE_NAME "stapsdt"
+
+#define FIND_SYMBOL 1
+#define FIND_STAPSTD_NOTE 2
 
 typedef GElf_Addr vaddr_t;
 
@@ -28,4 +40,9 @@ typedef GElf_Addr vaddr_t;
  *
  * @return 0 on failure, otherwise address of symbol.
  */
-vaddr_t find_symbol(const char *exec, const char *symbol);
+vaddr_t find_symbol(const char *exec, const char *symbol, int type);
+
+/**
+ * SDT notes
+ */
+vaddr_t find_stapsdt_symbol(const char *exec, const char *symbol);
