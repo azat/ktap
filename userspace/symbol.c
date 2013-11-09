@@ -120,6 +120,10 @@ static vaddr_t search_symbol(Elf *elf, const char *symbol)
 	return 0;
 }
 
+#define SDT_NOTE_TYPE 3
+#define SDT_NOTE_SCN ".note.stapsdt"
+#define SDT_NOTE_NAME "stapsdt"
+
 static vaddr_t sdt_note_addr(Elf **elf, const char *data, size_t len, int type)
 {
 	vaddr_t vaddr;
