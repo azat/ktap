@@ -41,8 +41,3 @@ typedef GElf_Addr vaddr_t;
  * @return 0 on failure, otherwise address of symbol.
  */
 vaddr_t find_symbol(const char *exec, const char *symbol, int type);
-
-/**
- * SDT notes
- */
-vaddr_t find_stapsdt_symbol(const char *exec, const char *symbol);
