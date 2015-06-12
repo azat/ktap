@@ -186,8 +186,7 @@ static enum print_line_t print_trace_stack(struct trace_iterator *iter)
 			break;
 
 		sprint_symbol(str, p);
-		if (!trace_seq_printf(&iter->seq, " => %s\n", str))
-			return TRACE_TYPE_PARTIAL_LINE;
+		trace_seq_printf(&iter->seq, " => %s\n", str);
 	}
 
 	return TRACE_TYPE_HANDLED;
@@ -237,9 +236,7 @@ static enum print_line_t print_trace_line(struct trace_iterator *iter)
 	char *str = (char *)(entry + 1);
 
 	if (entry->type == TRACE_PRINT) {
-		if (!trace_seq_printf(&iter->seq, "%s", str))
-			return TRACE_TYPE_PARTIAL_LINE;
-
+		trace_seq_printf(&iter->seq, "%s", str);
 		return TRACE_TYPE_HANDLED;
 	}
 
