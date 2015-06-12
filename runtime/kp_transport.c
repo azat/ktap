@@ -126,7 +126,7 @@ unsigned long long ns2usecs(cycle_t nsec)
 	return nsec;
 }
 
-static void trace_print_timestamp(struct trace_iterator *iter)
+static int trace_print_timestamp(struct trace_iterator *iter)
 {
 	struct trace_seq *s = &iter->seq;
 	unsigned long long t;
@@ -136,7 +136,7 @@ static void trace_print_timestamp(struct trace_iterator *iter)
 	usec_rem = do_div(t, USEC_PER_SEC);
 	secs = (unsigned long)t;
 
-	trace_seq_printf(s, "%5lu.%06lu: ", secs, usec_rem);
+	return TRACE_SEQ_PRINTF(s, "%5lu.%06lu: ", secs, usec_rem);
 }
 
 /* todo: export kernel function ftrace_find_event in future, and make faster */
@@ -150,8 +150,8 @@ static enum print_line_t print_trace_fmt(struct trace_iterator *iter)
 
 	ev = ftrace_find_event(entry->type);
 
-	if (ktap_iter->print_timestamp)
-		trace_print_timestamp(iter);
+	if (ktap_iter->print_timestamp && !trace_print_timestamp(iter))
+		return TRACE_TYPE_PARTIAL_LINE;
 
 	if (ev) {
 		int ret = ev->funcs->trace(iter, 0, ev);
@@ -186,7 +186,8 @@ static enum print_line_t print_trace_stack(struct trace_iterator *iter)
 			break;
 
 		sprint_symbol(str, p);
-		trace_seq_printf(&iter->seq, " => %s\n", str);
+		if (!TRACE_SEQ_PRINTF(&iter->seq, " => %s\n", str))
+			return TRACE_TYPE_PARTIAL_LINE;
 	}
 
 	return TRACE_TYPE_HANDLED;
@@ -204,8 +205,8 @@ static enum print_line_t print_trace_fn(struct trace_iterator *iter)
 	struct ktap_ftrace_entry *field = (struct ktap_ftrace_entry *)iter->ent;
 	char str[KSYM_SYMBOL_LEN];
 
-	if (ktap_iter->print_timestamp)
-		trace_print_timestamp(iter);
+	if (ktap_iter->print_timestamp && !trace_print_timestamp(iter))
+		return TRACE_TYPE_PARTIAL_LINE;
 
 	sprint_symbol(str, field->ip);
 	if (!_trace_seq_puts(&iter->seq, str))
@@ -236,7 +237,9 @@ static enum print_line_t print_trace_line(struct trace_iterator *iter)
 	char *str = (char *)(entry + 1);
 
 	if (entry->type == TRACE_PRINT) {
-		trace_seq_printf(&iter->seq, "%s", str);
+		if (!TRACE_SEQ_PRINTF(&iter->seq, "%s", str))
+			return TRACE_TYPE_PARTIAL_LINE;
+
 		return TRACE_TYPE_HANDLED;
 	}
 
