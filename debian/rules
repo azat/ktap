@@ -21,6 +21,12 @@ include /usr/share/dpkg/default.mk
 %:
 	dh $@ 
 
+# TODO(azat):
+override_dh_auto_test:
+#	make load
+#	make test
+#	make unload
+
 # debmake generated override targets
 # This is example for Cmake (See http://bugs.debian.org/641051 )
 #override_dh_auto_configure:
