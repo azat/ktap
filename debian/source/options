@@ -1,0 +1,6 @@
+extend-diff-ignore = "(^|/).git/*$"
+extend-diff-ignore = "(^|/)*.dwo$"
+extend-diff-ignore = "(^|/)*.o$"
+extend-diff-ignore = "(^|/)*.ko$"
+extend-diff-ignore = "(^|/)*.patch$"
+extend-diff-ignore = "(^|/)tags$"
