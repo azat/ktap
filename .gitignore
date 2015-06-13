@@ -94,3 +94,6 @@ ktap
 KTAP-CFLAGS
 
 *.dwo
+
+# debian
+/debian/ktap.debhelper.log
