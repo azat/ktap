@@ -95,3 +95,10 @@ ktap
 KTAP-CFLAGS
 
 *.dwo
+
+# debian
+/debian/ktap.debhelper.log
+/debian/files
+/debian/ktap.postinst.debhelper
+/debian/ktap.postrm.debhelper
+/debian/ktap.substvars
