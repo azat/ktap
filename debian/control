@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/ktap/ktap
 
 Package: ktap
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: kmod, libelf1, ${shlibs:Depends}, ${misc:Depends}
 Description: lightweight script-based dynamic tracing tool for Linux
  ktap is a new script-based dynamic tracing tool for Linux, it uses a scripting
  language and lets users trace the Linux kernel dynamically. ktap is designed to
