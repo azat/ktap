@@ -5,7 +5,6 @@ VERSION = $(shell dpkg-parsechangelog --show-field Version)
 DESCRIPTION = $(shell fgrep Description: debian/control | cut -d' ' -f2-)
 include /usr/share/dpkg/default.mk
 
-export DEB_BUILD_HARDENING_RELRO = 1
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_CFLAGS_MAINT_APPEND = -Wall -pedantic
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
