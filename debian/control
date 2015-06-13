@@ -1,5 +1,5 @@
 Source: ktap
-Section: admin
+Section: devel
 Priority: optional
 Maintainer: Azat Khuzhin <a3at.mail@gmail.com>
 Build-Depends: debhelper (>= 9)
