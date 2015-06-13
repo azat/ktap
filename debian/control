@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Azat Khuzhin <a3at.mail@gmail.com>
 Build-Depends: debhelper (>= 9), linux-headers-amd64, dpkg-dev, libelf-dev
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Homepage: http://www.ktap.org
 Vcs-Git: https://github.com/ktap/ktap.git
 Vcs-Browser: https://github.com/ktap/ktap
