@@ -27,6 +27,14 @@ override_dh_auto_test:
 #	make test
 #	make unload
 
+override_dh_installdocs:
+	help2man --no-discard-stderr -h-h --version-string $(dpkg-parsechangelog --show-field Version) $(DESTDIR)/usr/bin/ktap > $(PWD)/debian/ktap.1
+	echo "debian/ktap.1" >> $(PWD)/debian/ktap.manpages
+	
+	mkdir -p debian/doc
+	pandoc -o debian/doc/tutorial.html $(PWD)/../doc/tutorial.md
+	dh_installdocs doc/tutorial.html debian/ktap.1
+
 # debmake generated override targets
 # This is example for Cmake (See http://bugs.debian.org/641051 )
 #override_dh_auto_configure:
