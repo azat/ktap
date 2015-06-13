@@ -1,0 +1,9 @@
+Document: ktap
+Title: The ktap Manual
+Author: Jovi Zhangwei <jovi.zhangwei@gmail.com>
+Abstract: This manual describes what ktap is
+ and how it can be used.
+Section: devel
+
+Format: HTML
+Files: /usr/share/doc/ktap/*.html
