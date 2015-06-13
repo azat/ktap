@@ -6,4 +6,4 @@ Abstract: This manual describes what ktap is
 Section: Programming
 
 Format: HTML
-Files: /usr/share/doc/ktap/*.html
+Index: /usr/share/doc/ktap/tutorial.html
