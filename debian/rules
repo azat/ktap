@@ -26,3 +26,6 @@ override_dh_installdocs:
 	mkdir -p debian/doc
 	pandoc -o debian/doc/tutorial.html doc/tutorial.md
 	dh_installdocs debian/doc/tutorial.html debian/ktap.1
+
+override_dh_installchangelogs:
+	dh_installchangelogs RELEASES.txt
