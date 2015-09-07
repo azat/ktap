@@ -1,13 +1,11 @@
-This package was debianized by Azat Khuzhin <a3at.mail@gmail.com> on
-Sat, 13 Jun 2015 15:44:06 +0300
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ktap
+Upstream-Contact: Jovi Zhangwei <jovi.zhangwei@gmail.com>
+Source: https://github.com/ktap/ktap
 
-It was downloaded from <https://github.com/ktap/ktap>.
-
-Upstream Author:
-        Jovi Zhangwei <jovi.zhangwei@gmail.com>
-
-Copyright Holder:
-        Jovi Zhangwei <jovi.zhangwei@gmail.com>
+Files: *
+Copyright: 2012-2015 Jovi Zhangwei <jovi.zhangwei@gmail.com>
+License: GPL-2.0+
 
 Files: debian/*
 Copyright: 2015 Azat Khuzhin <a3at.mail@gmail.com>
