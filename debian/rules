@@ -18,13 +18,14 @@ override_dh_auto_test:
 #	make test
 #	make unload
 
-override_dh_installdocs:
+override_dh_installman:
 	help2man --no-discard-stderr -h-h --version-string $(VERSION) -n "$(DESCRIPTION)" ./ktap > debian/ktap.1
-	echo "debian/ktap.1" >> debian/ktap.manpages
-	
+	dh_installman
+
+override_dh_installdocs:
 	mkdir -p debian/doc
 	pandoc -o debian/doc/tutorial.html doc/tutorial.md
-	dh_installdocs debian/doc/tutorial.html debian/ktap.1
+	dh_installdocs debian/doc/tutorial.html
 	dh_installdocs samples
 
 override_dh_installchangelogs:
