@@ -30,7 +30,7 @@ override_dh_auto_test:
 #	make unload
 
 override_dh_installman:
-	help2man --no-discard-stderr -h-h --version-string $(VERSION) -n "$(DESCRIPTION)" ./ktap > debian/ktap.1
+	help2man --include debian/ktapvm --no-discard-stderr -h-h --version-string $(VERSION) -n "$(DESCRIPTION)" ./ktap > debian/ktap.1
 	dh_installman
 
 override_dh_installdocs:

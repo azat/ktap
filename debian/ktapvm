@@ -1,0 +1,5 @@
+[NOTES]
+To make ktap work, firstly you need to load "ktapvm" module:
+
+       modprobe ktapvm
+
