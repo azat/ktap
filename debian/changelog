@@ -1,3 +1,9 @@
+ktap (0.4+git20160802-1) unstable; urgency=medium
+
+  * Sync with upstream (Closes: #832355)
+
+ -- Azat Khuzhin <a3at.mail@gmail.com>  Tue, 02 Aug 2016 14:26:53 +0300
+
 ktap (0.4+git20160427-1) unstable; urgency=medium
 
   * Sync with upstream (Closes: #803241)
