@@ -21,7 +21,7 @@ override_dh_auto_install:
 override_dh_auto_clean:
 	dh_clean ktap KTAP-CFLAGS
 override_dh_install:
-	dh_install --exclude=debian Makefile runtime include usr/src/ktapvm-$(VERSION)/
+	dh_install -pktap-dkms -Xdebian Makefile runtime include usr/src/ktapvm-$(VERSION)/
 
 # TODO(azat):
 override_dh_auto_test:
