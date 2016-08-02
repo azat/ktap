@@ -1,9 +1,7 @@
 /*
  * kp_obj.c - ktap object generic operation
  *
- * This file is part of ktap by Jovi Zhangwei.
- *
- * Copyright (C) 2012-2013 Jovi Zhangwei <jovi.zhangwei@gmail.com>.
+ * Copyright (C) 2012-2016, Huawei Technologies.
  *
  * Adapted from luajit and lua interpreter.
  * Copyright (C) 2005-2014 Mike Pall.
@@ -42,9 +40,13 @@ const char *kp_err_allmsg =
 #include "../include/ktap_errmsg.h"
 ;
 
+#ifndef __GFP_RECLAIM
+#define __GFP_RECLAIM __GFP_WAIT
+#endif
+
 /* memory allocation flag */
 #define KTAP_ALLOC_FLAGS ((GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN) \
-			 & ~__GFP_WAIT)
+			 & ~__GFP_RECLAIM)
 
 /*
  * TODO: It's not safe to call into facilities in the kernel at-large,
